@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Toko Rank Minecraft</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg1:#060b1e;--bg2:#0b1540;
+  --accent1:#4f9cff;--accent2:#9d6bff;--accent3:#00e6b8;
+  --text:#eaf2ff;--muted:#9cb8d9;
+  --card:rgba(255,255,255,0.05);--glass:rgba(255,255,255,0.04);
+}
+[data-theme="light"]{
+  --bg1:#f5f7ff;--bg2:#dfe4ff;
+  --accent1:#4f64ff;--accent2:#aa56ff;--accent3:#00c4a5;
+  --text:#0b1225;--muted:#3d4b6b;
+  --card:rgba(0,0,0,0.05);--glass:rgba(0,0,0,0.06);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:'Poppins',sans-serif;
+  background:radial-gradient(circle at top,var(--bg2),var(--bg1));
+  color:var(--text);overflow-x:hidden;
+}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;mix-blend-mode:screen;opacity:.9;}
+header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:18px 26px;}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent2),var(--accent3));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:22px;box-shadow:0 0 18px rgba(180,140,255,0.4);animation:pulseGlow 3s infinite ease-in-out;}
+.brand h1{font-size:18px;margin:0;font-weight:700}
+.btn-toggle{border:1px solid var(--glass);background:transparent;padding:10px 16px;border-radius:10px;color:var(--text);cursor:pointer;font-weight:600;transition:.3s;}
+.btn-toggle:hover{background:var(--accent2);color:white;}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 15px rgba(160,80,255,0.6);}50%{box-shadow:0 0 30px rgba(100,200,255,0.9);}}
+.hero{text-align:center;padding:60px 20px 40px;animation:fadeIn 1.2s ease-in;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+.hero h2{font-size:44px;margin:14px 0 10px;background:linear-gradient(90deg,var(--accent1),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:glowText 4s infinite alternate;}
+@keyframes glowText{0%{text-shadow:0 0 10px rgba(120,140,255,0.6);}100%{text-shadow:0 0 25px rgba(180,120,255,0.9);}}
+.hero p{max-width:700px;margin:0 auto;color:var(--muted);font-size:16px;}
+.cta{margin-top:25px;}
+.btn-main{background:linear-gradient(90deg,var(--accent1),var(--accent3));border:0;color:white;padding:14px 28px;font-weight:700;border-radius:14px;cursor:pointer;transition:.3s;box-shadow:0 6px 24px rgba(0,255,255,0.3);}
+.btn-main:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,255,255,0.4);}
+.btn-ghost{border:1px solid rgba(255,255,255,0.1);background:transparent;color:var(--text);padding:14px 24px;border-radius:14px;font-weight:600;cursor:pointer;transition:.3s;}
+.btn-ghost:hover{background:var(--accent2);color:white;}
+.ranks{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;max-width:1100px;margin:40px auto;padding:20px;}
+.card{background:var(--card);border-radius:16px;padding:20px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.06);transition:transform .3s,box-shadow .3s;box-shadow:0 0 20px rgba(80,100,255,0.08);}
+.card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 0 30px rgba(120,180,255,0.3);}
+.rank-title{font-weight:700;font-size:20px;color:var(--accent3);}
+
+/* Perbaikan: tampilkan price & upgrade price sejajar */
+.price{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:18px;
+  font-weight:700;
+  margin-top:8px;
+  color:var(--accent1);
+  flex-wrap:wrap;
+}
+.upgrade-price{
+  font-size:14px;
+  color:var(--accent3);
+  font-weight:600;
+  background:rgba(0,230,184,0.06);
+  padding:4px 8px;
+  border-radius:8px;
+}
+
+/* tombol & fitur */
+.features{color:var(--muted);font-size:13px;margin-top:10px;}
+.buy{margin-top:16px;padding:10px 18px;border-radius:12px;background:linear-gradient(90deg,var(--accent2),var(--accent3));border:0;color:white;font-weight:600;cursor:pointer;transition:.3s;display:inline-block;}
+.buy:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(120,255,255,0.4);}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:50;}
+.modal.active{display:flex;}
+.modal-content{background:var(--card);backdrop-filter:blur(10px);padding:24px;border-radius:16px;width:90%;max-width:460px;box-shadow:0 0 25px rgba(120,180,255,0.3);}
+.modal-content h3{text-align:center;margin-bottom:14px;color:var(--accent2);}
+label{display:block;font-weight:600;margin-top:10px;font-size:14px;}
+input,select{width:100%;padding:10px;margin-top:6px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:var(--text);}
+input[readonly]{opacity:0.9;background:rgba(255,255,255,0.02);cursor:default;}
+.note{font-size:12px;color:var(--muted);margin-top:6px;}
+.modal-buttons{display:flex;justify-content:space-between;margin-top:20px;gap:12px;}
+.btn-cancel,.btn-send{padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600;border:0;flex:1;}
+.btn-cancel{background:rgba(255,255,255,0.08);color:var(--text);}
+.btn-send{background:linear-gradient(90deg,var(--accent1),var(--accent3));color:white;}
+.discord-badge{position:fixed;right:18px;bottom:18px;z-index:60;display:flex;align-items:center;justify-content:center;padding:14px;border-radius:50%;background:linear-gradient(135deg,#5865F2,#6E7BFF);box-shadow:0 10px 30px rgba(100,110,255,0.28);cursor:pointer;transition:transform .18s;}
+.discord-badge:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(90,100,255,0.36);}
+.discord-badge img{width:34px;height:34px;filter:invert(1);}
+footer{text-align:center;padding:30px;color:var(--muted);font-size:14px;}
+.buy.upgrade-btn{margin-left:10px;}
+/* small helpers */
+.small-muted{font-size:12px;color:var(--muted);margin-top:6px;}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<header>
+  <div class="brand">
+    <div class="logo">ʙ</div>
+    <h1>ʙʀᴀɴsᴢ sᴛᴏʀᴇ</h1>
+  </div>
+  <button class="btn-toggle" id="themeToggle">🌗 Tema</button>
+</header>
+
+<main>
+  <section class="hero">
+    <h2>Jual Rank Server Bransz SMP</h2>
+    <p>Beli rank favoritmu dan nikmati semua benefit eksklusifnya dengan harga terjangkau!</p>
+    <div class="cta">
+      <button class="btn-main" id="visitMain">🌐 Kunjungi Website Utama</button>
+      <button class="btn-ghost" onclick="document.querySelector('.ranks').scrollIntoView({behavior:'smooth'})">Lihat Semua Rank</button>
+    </div>
+  </section>
+
+  <section class="ranks">
+    <div class="card">
+      <div class="rank-title">Members</div>
+      <div class="price"><span class="base-price">Rp 5.000</span></div>
+      <div class="features">• /kit Members<br/>• Claim Limit 5<br/>• Block Limit 200<br/>• Tag Pemula</div>
+      <button class="buy" data-price="Rp 5.000" data-rank="Members">Beli</button>
+    </div>
+
+    <div class="card">
+      <div class="rank-title">Victorial</div>
+      <div class="price"><span class="base-price">Rp 10.000</span><span class="upgrade-price">💵 Upgrade: Rp 5.500</span></div>
+      <div class="features">• /fly (5m)<br/>• Efek aura<br/>• Tag VIP</div>
+      <button class="buy" data-price="Rp 10.000" data-rank="Victorial">Beli</button>
+      <button class="buy upgrade-btn" data-rank="Victorial" type="button">Upgrade</button>
+    </div>
+
+    <div class="card">
+      <div class="rank-title">Supreme</div>
+      <div class="price"><span class="base-price">Rp 20.000</span><span class="upgrade-price">💵 Upgrade: Rp 14.000</span></div>
+      <div class="features">• Semua fitur premium<br/>• Support prioritas</div>
+      <button class="buy" data-price="Rp 20.000" data-rank="Supreme">Beli</button>
+      <button class="buy upgrade-btn" data-rank="Supreme" type="button">Upgrade</button>
+    </div>
+  </section>
+</main>
+
+<!-- Modal Beli -->
+<div class="modal" id="formModal">
+  <div class="modal-content">
+    <h3>Isi Data Pembelian 🛒</h3>
+
+    <label for="gamertag">Gamertag</label>
+    <input id="gamertag" type="text" placeholder="Masukkan nama Minecraft" />
+
+    <label for="platform">Platform Minecraft</label>
+    <select id="platform">
+      <option value="Java">Java</option>
+      <option value="Bedrock">Bedrock</option>
+    </select>
+
+    <label for="orderIdDisplay">Nomor Pesanan</label>
+    <!-- tampil read-only -->
+    <input id="orderIdDisplay" type="text" readonly />
+
+    <!-- Voucher input -->
+    <label for="voucherCode">Kode Voucher (opsional)</label>
+    <input id="voucherCode" type="text" placeholder="Masukkan kode voucher jika ada" />
+    <div class="note" id="voucherNote">💡 Masukkan kode voucher untuk potongan harga.</div>
+
+    <div class="modal-buttons" style="margin-top:14px;">
+      <button class="btn-cancel" id="cancelBtn">Batal</button>
+      <button class="btn-send" id="sendBtn">Kirim</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Upgrade -->
+<div class="modal" id="upgradeModal">
+  <div class="modal-content">
+    <h3>Form Upgrade Rank 🔄</h3>
+
+    <label for="upName">Nama Minecraft</label>
+    <input id="upName" placeholder="Masukkan nama Minecraft" type="text"/>
+
+    <label for="upPlatform">Platform Minecraft</label>
+    <select id="upPlatform"><option value="Java">Java</option><option value="Bedrock">Bedrock</option></select>
+
+    <label for="fromRank">Dari Rank</label>
+    <select id="fromRank"><option>Members</option><option>Victorial</option><option>Supreme</option></select>
+
+    <label for="toRank">Ke Rank</label>
+    <select id="toRank"><option>Members</option><option>Victorial</option><option>Supreme</option></select>
+
+    <!-- area harga upgrade (dihasilkan oleh script) -->
+    <div class="note" id="upgradePriceNote" style="margin-top:10px;">💵 Harga Upgrade: —</div>
+
+    <div class="modal-buttons" style="margin-top:14px;">
+      <button class="btn-cancel" id="upCancel">Batal</button>
+      <button class="btn-send" id="upSend">Kirim</button>
+    </div>
+  </div>
+</div>
+
+<!-- Panel Seller Modal (OTP flows) -->
+<div class="modal" id="sellerModal">
+  <div class="modal-content">
+    <h3>Panel Seller 🎟️</h3>
+
+    <div id="sellerLogin">
+      <label for="sellerEmail">Email Seller</label>
+      <input id="sellerEmail" type="email" placeholder="Masukkan email seller">
+      <button class="btn-send" id="sendOtpBtn" style="margin-top:10px;">Kirim OTP</button>
+
+      <div id="otpSection" style="display:none;margin-top:12px;">
+        <label for="otpInput">Kode OTP</label>
+        <input id="otpInput" type="text" placeholder="Masukkan kode OTP" maxlength="6">
+        <button class="btn-send" id="verifyOtpBtn" style="margin-top:10px;">Verifikasi</button>
+        <div class="small-muted">OTP berlaku 3 menit.</div>
+      </div>
+
+      <div class="note">Hanya email seller yang terdaftar yang bisa membuat voucher.</div>
+    </div>
+
+    <div id="sellerPanel" style="display:none;">
+      <p><b>Login sebagai:</b> <span id="activeSeller"></span></p>
+      <label for="discType">Tipe Diskon</label>
+      <select id="discType">
+        <option value="nominal">Nominal (Rp)</option>
+        <option value="percent">Persen (%)</option>
+      </select>
+
+      <label for="discValue">Nilai Diskon</label>
+      <input id="discValue" type="number" placeholder="Contoh: 5000 atau 10">
+
+      <label for="discExp">Kadaluarsa</label>
+      <input id="discExp" type="date">
+
+      <button class="btn-send" id="createVoucherBtn" style="margin-top:12px;">Buat Voucher</button>
+      <button class="btn-cancel" id="logoutSeller" style="margin-top:8px;">Keluar</button>
+
+      <div id="voucherList" class="note" style="margin-top:12px;max-height:160px;overflow:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Discord and Seller badge -->
+<div class="discord-badge" id="discordBadge" title="Server Discord">
+  <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/discord.svg" alt="Discord"/>
+</div>
+
+<button class="discord-badge" id="sellerBadge" title="Panel Seller" style="right:80px;background:linear-gradient(135deg,#00e6b8,#4f9cff);">
+  💼
+</button>
+
+<footer>© <span id="year"></span> Bransz Store</footer>
+
+<script>
+/* ---------------------------
+   Konfigurasi & data harga
+   --------------------------- */
+/*
+  EDIT THESE VALUES:
+  - ADMIN_WA: nomor WA tanpa +, contoh: 6285167490302
+  - WEBSITE_URL: link website utama (isi nanti)
+  - DISCORD_URL: link server Discord (isi nanti)
+*/
+const ADMIN_WA = "6285167490302"; // ganti kalau perlu
+const WEBSITE_URL = ""; // contoh: "https://branszstore.my.id"
+const DISCORD_URL = "";  // contoh: "https://discord.gg/yourinvite"
+
+const upgradePrices = {
+  "Victorial": "Rp 5.500",
+  "Supreme": "Rp 14.000"
+};
+
+/* ---------------------------
+   Utility - generate order id
+   Format: ORDYYYYMMDDXXXX
+   --------------------------- */
+function randomStr(n){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let s = "";
+  for(let i=0;i<n;i++) s += chars.charAt(Math.floor(Math.random()*chars.length));
+  return s;
+}
+function generateOrderId(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  const suffix = randomStr(4);
+  return `ORD${yyyy}${mm}${dd}${suffix}`;
+}
+
+/* ---------------------------
+   Refs DOM
+   --------------------------- */
+const formModal = document.getElementById("formModal");
+const gamertagInput = document.getElementById("gamertag");
+const platformSelect = document.getElementById("platform");
+const orderIdDisplay = document.getElementById("orderIdDisplay");
+const cancelBtn = document.getElementById("cancelBtn");
+const sendBtn = document.getElementById("sendBtn");
+
+const upgradeModal = document.getElementById("upgradeModal");
+const upName = document.getElementById("upName");
+const upPlatform = document.getElementById("upPlatform");
+const fromRank = document.getElementById("fromRank");
+const toRank = document.getElementById("toRank");
+const upCancel = document.getElementById("upCancel");
+const upSend = document.getElementById("upSend");
+const upgradePriceNote = document.getElementById("upgradePriceNote");
+
+/* ---------------------------
+   Buka modal Beli saat klik tombol Beli
+   dan isi order id otomatis
+   --------------------------- */
+document.querySelectorAll(".buy").forEach(btn => {
+  // skip upgrade buttons with class upgrade-btn
+  if (btn.classList.contains("upgrade-btn")) return;
+
+  btn.addEventListener("click", () => {
+    const rank = btn.dataset.rank || "";
+    const price = btn.dataset.price || btn.closest('.card')?.querySelector('.base-price')?.textContent || "";
+    // generate order id
+    const oid = generateOrderId();
+    orderIdDisplay.value = oid;
+    gamertagInput.value = "";
+    platformSelect.value = "Java";
+
+    // store selected info on modal dataset for send
+    formModal.dataset.rank = rank;
+    formModal.dataset.price = price;
+
+    // open modal
+    formModal.classList.add("active");
+  });
+});
+
+/* tombol cancel di modal beli */
+if (cancelBtn){
+  cancelBtn.addEventListener("click", ()=> {
+    formModal.classList.remove("active");
+  });
+}
+
+/* kirim beli -> langsung ke WA dengan format lengkap */
+if (sendBtn){
+  sendBtn.addEventListener("click", () => {
+    const name = gamertagInput.value.trim();
+    if(!name){ alert("Isi nama Minecraft dulu!"); return; }
+    const orderId = orderIdDisplay.value || generateOrderId();
+    const rank = formModal.dataset.rank || "";
+    const priceText = formModal.dataset.price || "";
+    const plat = platformSelect.value || "";
+    const voucherCode = document.getElementById("voucherCode").value.trim();
+
+    // Ambil harga asli (angka)
+    const priceNum = parseInt((priceText || "").replace(/\D/g, "")) || 0;
+    let discount = 0;
+    let voucherNoteText = "";
+
+    // cek voucher
+    const v = getVoucher(voucherCode);
+    if (v && (!v.expires || new Date(v.expires) > new Date())) {
+      discount = v.type === "percent" ? Math.round(priceNum * v.value / 100) : v.value;
+      voucherNoteText = `💳 Voucher: ${voucherCode} (-${v.type === "percent" ? v.value + "%" : "Rp " + v.value})\n`;
+    }
+
+    const finalPrice = Math.max(0, priceNum - discount);
+    const priceFinalText = "Rp " + finalPrice.toLocaleString("id-ID");
+
+    const msg = `📦 Beli Rank\n\n🛍 No. Pesanan: ${orderId}\n⚔️ Rank: ${rank}\n📄 Nama: ${name}\n🎮 Platform: ${plat}\n💵 Harga: ${priceText}\n${voucherNoteText}💰 Total Bayar: ${priceFinalText}\n\nTerima kasih!`;
+
+    // open WA
+    window.open(`https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(msg)}`, "_blank");
+    formModal.classList.remove("active");
+  });
+}
+
+/* ---------------------------
+   Upgrade: tombol & behavior (langsung WA)
+   --------------------------- */
+document.querySelectorAll(".upgrade-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const rank = btn.dataset.rank || "";
+    // prefill upgrade modal
+    const to = rank;
+    const from = "Members"; // default
+    fromRank.value = from;
+    toRank.value = to;
+    const harga = upgradePrices[to] || "Rp -";
+    upgradePriceNote.textContent = "💵 Harga Upgrade: " + harga;
+    upName.value = "";
+    upPlatform.value = "Java";
+    upgradeModal.classList.add("active");
+  });
+});
+
+if (upCancel){
+  upCancel.addEventListener("click", ()=> upgradeModal.classList.remove("active"));
+}
+
+if (upSend){
+  upSend.addEventListener("click", ()=> {
+    const name = upName.value.trim();
+    if(!name){ alert("Isi nama Minecraft dulu!"); return; }
+    const orderId = generateOrderId();
+    const from = fromRank.value || "";
+    const to = toRank.value || "";
+    const plat = upPlatform.value || "";
+    const harga = upgradePrices[to] || "Rp -";
+
+    const msg = `🔄 Upgrade Rank\n\n🛍 No. Pesanan: ${orderId}\n📄 Nama: ${name}\n🎮 Platform: ${plat}\n⚔️ Dari: ${from} ➜ ${to}\n💵 Harga Upgrade: ${harga}`;
+
+    window.open(`https://wa.me/${ADMIN_WA}?text=${encodeURIComponent(msg)}`, "_blank");
+    upgradeModal.classList.remove("active");
+  });
+}
+
+/* ---------------------------
+   Tema, year, background canvas
+   --------------------------- */
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const themeToggle = document.getElementById('themeToggle');
+if (themeToggle){
+  themeToggle.addEventListener('click', ()=> {
+    const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+  });
+}
+
+// Discord badge click (uses DISCORD_URL placeholder)
+const discordBadge = document.getElementById('discordBadge');
+if (discordBadge){
+  discordBadge.addEventListener('click', ()=> {
+    if (DISCORD_URL && DISCORD_URL.length) window.open(DISCORD_URL, "_blank");
+    else alert("Link Discord belum diisi. Edit const DISCORD_URL di file.");
+  });
+}
+
+// Visit main website button (uses WEBSITE_URL placeholder)
+const visitMain = document.getElementById('visitMain');
+if (visitMain){
+  visitMain.addEventListener('click', ()=> {
+    if (WEBSITE_URL && WEBSITE_URL.length) window.open(WEBSITE_URL, "_blank");
+    else alert("Link Website Utama belum diisi. Edit const WEBSITE_URL di file.");
+  });
+}
+
+/* background canvas particles (simple) */
+(function(){
+  const c = document.getElementById('bg-canvas');
+  if(!c) return;
+  const ctx = c.getContext('2d');
+  let w = c.width = innerWidth, h = c.height = innerHeight;
+  const particles = Array.from({length:80}, ()=>({
+    x: Math.random()*w,
+    y: Math.random()*h,
+    r: Math.random()*2+1,
+    dx: (Math.random()-0.5)*0.5,
+    dy: (Math.random()-0.5)*0.5,
+    color: `rgba(${90 + Math.random()*120},${90 + Math.random()*120},255,0.18)`
+  }));
+  function render(){
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p=>{
+      p.x += p.dx; p.y += p.dy;
+      if(p.x<0||p.x>w) p.dx *= -1;
+      if(p.y<0||p.y>h) p.dy *= -1;
+      const g = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*8);
+      g.addColorStop(0,p.color);
+      g.addColorStop(1,'transparent');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r*6,0,Math.PI*2);
+      ctx.fill();
+    });
+    requestAnimationFrame(render);
+  }
+  render();
+  addEventListener('resize', ()=>{ w = c.width = innerWidth; h = c.height = innerHeight; });
+})();
+
+/* =================== VOUCHER + SELLER (localStorage) =================== */
+
+// allowed seller emails (edit as needed)
+const allowedSellers = ["erikzmc12@gmail.com", "branssmp@gmail.com"];
+
+// voucher helpers
+function genVoucherCode() { return "VC-" + Math.random().toString(36).substring(2,8).toUpperCase(); }
+function saveVoucher(voucher) {
+  const list = JSON.parse(localStorage.getItem("vouchers") || "[]");
+  list.push(voucher);
+  localStorage.setItem("vouchers", JSON.stringify(list));
+}
+function getVoucher(code) {
+  if (!code) return null;
+  const list = JSON.parse(localStorage.getItem("vouchers") || "[]");
+  return list.find(v => v.code.toUpperCase() === code.toUpperCase());
+}
+function renderVoucherList() {
+  const list = JSON.parse(localStorage.getItem("vouchers") || "[]");
+  const voucherList = document.getElementById("voucherList");
+  if (!list.length) {
+    voucherList.textContent = "Belum ada voucher dibuat.";
+    return;
+  }
+  voucherList.innerHTML = "<b>Daftar Voucher:</b><br>" + list.map(v =>
+    `${v.code} → ${v.type === "percent" ? v.value + "%" : "Rp " + v.value} (exp: ${v.expires || "-"})`
+  ).join("<br>");
+}
+
+/* Seller panel DOM refs */
+const sellerModal = document.getElementById("sellerModal");
+const sellerBadge = document.getElementById("sellerBadge");
+const sellerLoginDiv = document.getElementById("sellerLogin");
+const sellerPanelDiv = document.getElementById("sellerPanel");
+const sendOtpBtn = document.getElementById("sendOtpBtn");
+const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+const otpInput = document.getElementById("otpInput");
+const activeSeller = document.getElementById("activeSeller");
+const discType = document.getElementById("discType");
+const discValue = document.getElementById("discValue");
+const discExp = document.getElementById("discExp");
+const createVoucherBtn = document.getElementById("createVoucherBtn");
+const logoutSeller = document.getElementById("logoutSeller");
+const voucherList = document.getElementById("voucherList");
+const voucherInput = document.getElementById("voucherCode");
+const voucherNote = document.getElementById("voucherNote");
+
+/* show seller modal */
+sellerBadge.addEventListener("click", ()=> sellerModal.classList.add("active"));
+
+/* persistent login check */
+const savedSeller = localStorage.getItem("sellerEmail");
+if (savedSeller && allowedSellers.includes(savedSeller)) {
+  activeSeller.textContent = savedSeller;
+  sellerLoginDiv.style.display = "none";
+  sellerPanelDiv.style.display = "block";
+  renderVoucherList();
+}
+
+/* create voucher */
+createVoucherBtn.addEventListener("click", ()=> {
+  const email = localStorage.getItem("sellerEmail");
+  if (!email || !allowedSellers.includes(email)) {
+    alert("Kamu belum login sebagai seller!");
+    return;
+  }
+  const type = discType.value;
+  const value = parseFloat(discValue.value);
+  if (!value || value <= 0) return alert("Isi nilai diskon dengan benar.");
+  const expires = discExp.value || null;
+
+  const code = genVoucherCode();
+  const voucher = { code, type, value, expires, seller: email };
+  saveVoucher(voucher);
+  alert(`✅ Voucher dibuat!\nKode: ${code}\nDiskon: ${type === "percent" ? value + "%" : "Rp " + value}`);
+  renderVoucherList();
+});
+
+/* logout seller */
+logoutSeller.addEventListener("click", ()=> {
+  localStorage.removeItem("sellerEmail");
+  sellerPanelDiv.style.display = "none";
+  sellerLoginDiv.style.display = "block";
+});
+
+/* voucher input live check */
+if (voucherInput) {
+  voucherInput.addEventListener("input", ()=> {
+    const code = voucherInput.value.trim();
+    if (!code) { voucherNote.textContent = "💡 Masukkan kode voucher untuk potongan harga."; return; }
+    const v = getVoucher(code);
+    if (!v) { voucherNote.textContent = "❌ Kode voucher tidak valid."; return; }
+    if (v.expires && new Date(v.expires) < new Date()) { voucherNote.textContent = "⚠️ Voucher sudah kadaluarsa."; return; }
+    voucherNote.textContent = `✅ Voucher valid! Diskon: ${v.type === "percent" ? v.value + "%" : "Rp " + v.value}`;
+  });
+}
+
+/* =================== EMAILJS OTP (PLACEHOLDERS) =================== */
+/*
+  IMPORTANT:
+  - This file intentionally leaves EMAILJS configuration blank.
+  - Fill the three constants below with your own values from https://www.emailjs.com
+    BEFORE you use the "Kirim OTP" button.
+*/
+const EMAILJS_SERVICE_ID = ""; // e.g.service_12pbomi
+const EMAILJS_TEMPLATE_ID = ""; // e.g.template_7ogcucf
+const EMAILJS_PUBLIC_KEY  = ""; // e.g.pN26wX7mQuNCm8UC6
+
+/* load EmailJS library (only if keys provided) */
+(function loadEmailJs(){
+  const s = document.createElement("script");
+  s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";
+  s.onload = () => {
+    // emailjs will be available as window.emailjs if needed
+    if (window.emailjs && EMAILJS_PUBLIC_KEY) {
+      try { window.emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn(e); }
+    }
+  };
+  document.head.appendChild(s);
+})();
+
+// OTP handling (client-side)
+let currentOTP = null;
+let otpExpires = null;
+
+function generateOTP(len=6){
+  let digits = "0123456789", otp = "";
+  for(let i=0;i<len;i++) otp += digits[Math.floor(Math.random()*10)];
+  return otp;
+}
+
+// send OTP using EmailJS - requires you to fill EMAILJS_* constants above
+function sendOTP(email){
+  if (!allowedSellers.includes(email)) { alert("Email ini tidak diizinkan"); return; }
+  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+    // Fallback: show OTP in alert for testing (since keys not provided)
+    currentOTP = generateOTP();
+    otpExpires = Date.now() + 3*60*1000;
+    alert("SIMULASI OTP (kamu perlu isi EmailJS keys untuk kirim email nyata):\n\nKode OTP: " + currentOTP + "\nBerlaku 3 menit.");
+    document.getElementById("otpSection").style.display = "block";
+    return;
+  }
+
+  currentOTP = generateOTP();
+  otpExpires = Date.now() + 3*60*1000;
+
+  const payload = {
+    otp: currentOTP,
+    to_email: email
+  };
+  // send via EmailJS
+  window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload)
+    .then(() => {
+      alert("📩 Kode OTP dikirim ke " + email);
+      document.getElementById("otpSection").style.display = "block";
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Gagal mengirim OTP via EmailJS. Cek konfigurasi di file.");
+    });
+}
+
+function verifyOTP(code, email){
+  if (!currentOTP) { alert("Belum mengirim OTP."); return false; }
+  if (Date.now() > otpExpires) { alert("Kode OTP sudah kadaluarsa."); currentOTP = null; return false; }
+  if (code === currentOTP) {
+    currentOTP = null;
+    localStorage.setItem("sellerEmail", email);
+    activeSeller.textContent = email;
+    sellerLoginDiv.style.display = "none";
+    sellerPanelDiv.style.display = "block";
+    renderVoucherList();
+    alert("✅ Login berhasil!");
+    return true;
+  } else {
+    alert("❌ Kode OTP salah!");
+    return false;
+  }
+}
+
+/* OTP buttons handlers */
+sendOtpBtn.addEventListener("click", ()=> {
+  const email = document.getElementById("sellerEmail").value.trim();
+  if (!email) return alert("Masukkan email seller terlebih dahulu.");
+  if (!allowedSellers.includes(email)) return alert("Email tidak diizinkan.");
+  sendOTP(email);
+});
+verifyOtpBtn.addEventListener("click", ()=> {
+  const code = otpInput.value.trim();
+  const email = document.getElementById("sellerEmail").value.trim();
+  if (!code) return alert("Masukkan kode OTP.");
+  verifyOTP(code, email);
+});
+
+/* close seller modal on outside click */
+sellerModal.addEventListener("click", e => { if (e.target === sellerModal) sellerModal.classList.remove("active"); });
+
+/* ---------------------------
+   small safety: remove OTP on reload after 10 minutes
+   --------------------------- */
+setInterval(()=> {
+  if (otpExpires && Date.now() > (otpExpires + 10*60*1000)) currentOTP = null;
+}, 60*1000);
+
+
+/* =================== BATAS 1x CLAIM VOUCHER PER DEVICE =================== */
+
+/*
+  Mekanisme:
+  - Jika user memasukkan kode voucher di modal dan menekan "Kirim", listener capture
+    ini akan dijalankan *sebelum* listener lain, sehingga kita bisa mencegah pengiriman
+    jika perangkat sudah pernah menggunakan voucher.
+  - Status disimpan di localStorage key: "voucher_claimed_once"
+*/
+function hasUsedVoucher() {
+  return localStorage.getItem("voucher_claimed_once") === "true";
+}
+
+function markVoucherUsed() {
+  localStorage.setItem("voucher_claimed_once", "true");
+}
+
+/* Pastikan listener ini berjalan pada fase capture supaya memblokir listener click lain bila perlu */
+if (sendBtn) {
+  sendBtn.addEventListener("click", function(e) {
+    try {
+      const code = (document.getElementById("voucherCode") || {value:""}).value.trim();
+      if (!code) return; // tidak ada voucher => tidak perlu cek
+
+      // jika perangkat sudah pernah claim voucher sebelumnya, blokir penggunaan voucher
+      if (hasUsedVoucher()) {
+        alert("❌ Kamu sudah pernah claim voucher di perangkat ini.\nVoucher tidak bisa digunakan lagi.");
+        // hentikan event agar listener lain (yang membuka WA) tidak dieksekusi
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        return;
+      }
+
+      // kalau voucher valid dan belum pernah claim, tandai sebagai sudah dipakai
+      const v = getVoucher(code);
+      if (v && (!v.expires || new Date(v.expires) > new Date())) {
+        markVoucherUsed();
+        console.log("✅ Perangkat ini telah men-claim voucher 1x (tidak bisa lagi).");
+      }
+    } catch(err) {
+      console.warn("Error saat pengecekan voucher used flag:", err);
+      // jangan ganggu flow utama jika error; biarkan handler utama berjalan
+    }
+  }, true); // capture = true
+}
+
+</script>
+</body>
+</html>
