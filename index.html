@@ -581,9 +581,9 @@ if (voucherInput) {
   - Fill the three constants below with your own values from https://www.emailjs.com
     BEFORE you use the "Kirim OTP" button.
 */
-const EMAILJS_SERVICE_ID ="service_12pbomi"
-const EMAILJS_TEMPLATE_ID ="template_wrnszkx"
-const EMAILJS_PUBLIC_KEY  ="VGG_LvyXyjARUuPMY"
+const EMAILJS_SERVICE_ID ="service_12pbomi";
+const EMAILJS_TEMPLATE_ID ="template_wrnszkx";
+const EMAILJS_PUBLIC_KEY  ="VGG_LvyXyjARUuPMY";
 
 /* load EmailJS library (only if keys provided) */
 (function loadEmailJs(){
@@ -591,8 +591,8 @@ const EMAILJS_PUBLIC_KEY  ="VGG_LvyXyjARUuPMY"
   s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";
   s.onload = () => {
     // emailjs will be available as window.emailjs if needed
-    if (window.emailjs && EMAILJS_PUBLIC_KEY) {
-      try { window.emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.warn(e); }
+    if (window.emailjs && VGG_LvyXyjARUuPMY) {
+      try { window.emailjs.init(VGG_LvyXyjARUuPMY); } catch(e){ console.warn(e); }
     }
   };
   document.head.appendChild(s);
