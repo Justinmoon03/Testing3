@@ -581,9 +581,9 @@ if (voucherInput) {
   - Fill the three constants below with your own values from https://www.emailjs.com
     BEFORE you use the "Kirim OTP" button.
 */
-const EMAILJS_SERVICE_ID = "service_12pbomi";
-const EMAILJS_TEMPLATE_ID = "template_7ogcucf";
-const EMAILJS_PUBLIC_KEY  = "VGG_LvyXyjARUuPMY";
+const EMAILJS_SERVICE_ID ="service_12pbomi"
+const EMAILJS_TEMPLATE_ID ="template_wrnszkx"
+const EMAILJS_PUBLIC_KEY  ="VGG_LvyXyjARUuPMY"
 
 /* load EmailJS library (only if keys provided) */
 (function loadEmailJs(){
@@ -611,7 +611,7 @@ function generateOTP(len=6){
 // send OTP using EmailJS - requires you to fill EMAILJS_* constants above
 function sendOTP(email){
   if (!allowedSellers.includes(email)) { alert("Email ini tidak diizinkan"); return; }
-  if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+  if (!service_12pbomi || !template_wrnszkx || !VGG_LvyXyjARUuPMY) {
     // Fallback: show OTP in alert for testing (since keys not provided)
     currentOTP = generateOTP();
     otpExpires = Date.now() + 3*60*1000;
@@ -628,7 +628,7 @@ function sendOTP(email){
     to_email: email
   };
   // send via EmailJS
-  window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, payload)
+  window.emailjs.send(service_12pbomi, template_wrnszkx, payload)
     .then(() => {
       alert("📩 Kode OTP dikirim ke " + email);
       document.getElementById("otpSection").style.display = "block";
